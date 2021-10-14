@@ -19,7 +19,7 @@ pub struct ElementData {
     attributes: AttrMap,
 }
 
-pub type AttrMap = HashMap<String, String>
+pub type AttrMap = HashMap<String, String>;
 
 pub fn text(data: String) -> Node {
     Node {
