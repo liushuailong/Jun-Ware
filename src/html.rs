@@ -101,7 +101,7 @@ impl Parser {
             attributes.insert(name, value);
         }
 
-        reutrn attributes;
+        return attributes;
     }
 
     fn parse_nodes(&mut self) -> Vec<dom::Node> {
