@@ -1,38 +1,64 @@
-use style::{StyledNode, Display}
+use style::{StyledNode, Display};
+use css::Value::{Keyword, Length};
+use css::Unit::Px;
+use std::default::Default;
 
-struct Dimensions {
-    content: Rect,
-    padding: EdgeSizes,
-    border: Edgesizes,
-    margin: Edgesizes
+pub use self::BoxType::{AnonymousBlock, InlineNode, BlockNode};
+
+
+#[derive(Clone, Copy, Defualt, Debug)]
+pub struct Rect {
+    pub x: f32,
+    pub y: f32,
+    pub width: f32,
+    pub height: f32,
 }
 
-struct Rect {
-    x: f32,
-    y: f32,
-    width: f32,
-    height: f32,
+#[derive(Clone, Copy, Defualt, Debug)]
+pub struct Dimensions {
+    pub content: Rect,
+    pub padding: EdgeSizes,
+    pub border: Edgesizes,
+    pub margin: Edgesizes
 }
 
-struct EdgeSizes {
-    left: f32,
-    right: f32,
-    top: f32,
-    bottom: f32,
+
+#[derive(Clone, Copy, Defualt, Debug)]
+pub struct EdgeSizes {
+    pub left: f32,
+    pub right: f32,
+    pub top: f32,
+    pub bottom: f32,
 }
 
-struct LayoutBox<'a> {
-    dimensions: Dimensions,
-    box_type: BoxType<'a>,
-    children: Vec<LayoutBox<'a>>,
+pub struct LayoutBox<'a> {
+    pub dimensions: Dimensions,
+    pub box_type: BoxType<'a>,
+    pub children: Vec<LayoutBox<'a>>,
 }
 
-enum BoxType<'a> {
+pub enum BoxType<'a> {
     BlockNode(&'a StyleNode<'a>),
     InlineNode(&'a StyleNode<'a>),
     AnonymousBlock,
 }
 
+impl<'a> LayoutBox<'a> {
+    fn new(box_type: BoxType) -> LayoutBox {
+        LayoutBox {
+            box_type: box_type,
+            dimensions: Default::default(),
+            children: Vec::new(),
+        }
+    }
+
+    fn get_style_node(&self) -> &'a StyledNode<'a> {
+        match self.box_type {
+            BlockNode(node) | InlineNode(node) => node,
+            AnonymousBlock => panic!("Anonmous block box has no style node")
+        }
+    }
+}
 // enum Display {
 //     Inline,
 //     Block,
@@ -56,6 +82,13 @@ enum BoxType<'a> {
 //     }
 // }
 
+fn layout_tree<'a>(node: &'a StyledNode<'a>, mut containing_block: Dimensions) -> LayoutBox<'a> {
+    containing_block.content.height = 0.0;
+    let mut root_box = build_layout_tree(node);
+    root_box.layout(containing_block);
+    root_box
+}
+
 fn build_layout_tree<'a>(style_node: &'a StyledNode<'a>) -> Layoutbox<'a> {
     let mut root = LayoutBox::new(match style_node.display() {
         Block => BlockNode(style_node),
@@ -74,13 +107,24 @@ fn build_layout_tree<'a>(style_node: &'a StyledNode<'a>) -> Layoutbox<'a> {
     return root;
 }
 
-impl LayoutBox {
+impl<'a> LayoutBox<'a> {
     fn new(box_type: BoxType) -> LayoutBox {
         layoutBox {
             box_type: box_type,
             dimensions: Default::default(),
             children: Vec::new(),
         }
+    }
+
+    fn layout(&mut self, mut containing_block: Dimensions) {
+        match self.box_type {
+            BlockNode(_) => self.layout_block(containing_block),
+            InlineNode(_) | AnonymousBlock => {}
+        }
+    }
+
+    fn layout_block(&mut self, containing_block: Dimensions) {
+        
     }
 }
 
