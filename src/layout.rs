@@ -1,7 +1,7 @@
-use style::{StyledNode, Display};
-use css::Value::{Keyword, Length};
-use css::Unit::Px;
-use std::default::Default;
+use crate::style::{StyledNode, Display};
+use crate::css::Value::{Keyword, Length};
+use crate::css::Unit::Px;
+use crate::std::default::Default;
 
 pub use self::BoxType::{AnonymousBlock, InlineNode, BlockNode};
 
@@ -110,7 +110,7 @@ fn build_layout_tree<'a>(style_node: &'a StyledNode<'a>) -> Layoutbox<'a> {
 impl<'a> LayoutBox<'a> {
     fn new(box_type: BoxType) -> LayoutBox {
         layoutBox {
-            box_type: box_type,
+            box_type,
             dimensions: Default::default(),
             children: Vec::new(),
         }
@@ -247,3 +247,33 @@ impl<'a> LayoutBox<'a> {
     }
 }
 
+impl Rect {
+    pub fn expanded_by(self, edge: EdgeSizes) -> Rect {
+        Rect {
+            x: self.x - edge.left,
+            y: self.y - edge.top,
+            width: self.width + edge.left + edge.right,
+            height: self.height + edge.top + edge.bottom,
+        }
+    }
+}
+
+impl Dimensions {
+    pub fn padding_box(self) -> Rect {
+        self.content.expanded_by(self.padding)
+    }
+
+    pub fn border_box(self) -> Rect {
+        self.padding_box().expanded_by(self.border)
+    }
+
+    pub fn margin_box(self) -> Rect {
+        self.border_box().expanded_by(self.margin)
+    }
+}
+
+fn sum<I>(iter: I) -> f32
+    where I: Iterator<Item=f32>
+{
+    iter.fold(0f32, |a, b| a + b)
+}

@@ -30,14 +30,13 @@ pub struct Declaration {
 
 
 #[derive(Debug, Clone, ParticalEq)]
-enum Value {
+pub(crate) enum Value {
     Keyword(String),
     Length(f32, Unit),
     ColorValue(Color),
 }
 
-#[derive(Debug, Clone, ParticalEq)]
-pub impl Value {
+impl Value {
     pub fn to_px(&self) -> f32 {
         match *self {
             Value::Length(f, Unit::Px) => f,
@@ -105,7 +104,7 @@ impl Parser {
     fn parse_rule(&mut self) -> Rule {
         Rule {
             selectors: self.parse_selectors(),
-            declarationsa: self.parse_declarations(), 
+            declarations: self.parse_declarations(),
         }
     }
     fn parse_simple_selector(&mut self) -> SampleSelector {
