@@ -1,15 +1,14 @@
-use std::io::repeat;
 use crate::css::{Color, Value};
 use crate::layout::{LayoutBox, Rect};
 use crate::layout::BoxType::{AnonymousBlock, InlineNode, BlockNode};
 
 type DisplayList = Vec<DisplayCommand>;
 
-enum DisplayCommand {
+pub(crate) enum DisplayCommand {
     SolidColor(Color, Rect),
 }
 
-fn build_display_list(layout_root: &LayoutBox) -> DisplayList {
+pub(crate) fn build_display_list(layout_root: &LayoutBox) -> DisplayList {
     let mut list = Vec::new();
     render_layout_box(&mut list, layout_root);
     list
